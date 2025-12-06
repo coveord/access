@@ -5,6 +5,9 @@ on:
     branches:
      - main
 
+permissions:
+  contents: read
+
 jobs:
   docker-release:
     name: Docker release to Google Artifact Registry
@@ -15,6 +18,11 @@ jobs:
       id-token: "write"
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@df199fb7be9f65074067a9eb93f12bb4c5547cf2 # v2.13.3
+        with:
+          egress-policy: audit
+
       - id: checkout
         name: Checkout
         uses: actions/checkout@v6
@@ -23,7 +31,7 @@ jobs:
 
       - id: auth
         name: Authenticate with Google Cloud
-        uses: google-github-actions/auth@v3
+        uses: step-security/google-github-auth@f0e5c257a9534a30b5df12f43329c1eb7b85a5be # v3.0.0
         with:
           token_format: access_token
           workload_identity_provider: projects/259610024247/locations/global/workloadIdentityPools/github-actions/providers/github-actions-access
@@ -31,7 +39,7 @@ jobs:
           access_token_lifetime: 300s
 
       - name: Login to Artifact Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
           registry: us-east1-docker.pkg.dev
           username: oauth2accesstoken
@@ -39,7 +47,7 @@ jobs:
 
       - id: docker-push-tagged
         name: Tag Docker image and push to Google Artifact Registry
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
           push: true
           tags: |
