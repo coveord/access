@@ -7,6 +7,9 @@ on:
   schedule:
     # random HH:MM to avoid a load spike on GitHub Actions at 00:00
     - cron: '25 15 * * 1'
+permissions:
+  contents: read
+
 jobs:
   semgrep:
     name: semgrep/ci
@@ -17,6 +20,11 @@ jobs:
       image: returntocorp/semgrep
     if: (github.actor != 'dependabot[bot]')
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@v6
         with:
           persist-credentials: false

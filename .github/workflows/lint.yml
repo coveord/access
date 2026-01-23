@@ -4,10 +4,18 @@ on:
   - push
   - pull_request
 
+permissions:
+  contents: read
+
 jobs:
   node-lint:
     runs-on: ubuntu-22.04
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
@@ -24,6 +32,11 @@ jobs:
       matrix:
         python-version: ["3.13"]
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
